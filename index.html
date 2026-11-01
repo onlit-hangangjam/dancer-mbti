@@ -1,5 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><title>한강잼 댄스 MBTI</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="color-scheme" content="only light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style id="app-style">
@@ -21,16 +22,8 @@
   --font-body: "Noto Sans KR", system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif;
   --font-code: "IBM Plex Mono", ui-monospace, Menlo, monospace;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0e1626; --card: #17223a; --ink: #e8edf5; --muted: #9aa6bc; --line: #2a3754;
-    --accent: #ff7a5c; --river: #6e9bff; --river-soft: #1d2c4d; --tape: #ffd23f; --scene: #1d2c4d; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0e1626; --card: #17223a; --ink: #e8edf5; --muted: #9aa6bc; --line: #2a3754;
-  --accent: #ff7a5c; --river: #6e9bff; --river-soft: #1d2c4d; --tape: #ffd23f; --scene: #1d2c4d; color-scheme: dark;
-}
+/* Always light: same colors in dark mode; "only light" also asks browsers not to auto-darken */
+:root { color-scheme: only light; }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.6; word-break: keep-all; overflow-wrap: anywhere; }
 .wrap { max-width: 520px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; display: flex; flex-direction: column; gap: 20px; }
