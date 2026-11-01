@@ -456,8 +456,19 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px
   function br(s) {
     var parts = String(s == null ? "" : s).split(/(?<=[.!?])\s+/), out = [];
     parts.forEach(function (p) { out = out.concat(splitComma(p)); });
-    return out.map(esc).join("<br>");
+    var plain = esc(s), alt = out.map(esc).join("<br>");
+    return alt === plain ? plain : '<span class="br" data-alt="' + esc(alt) + '">' + plain + "</span>";
   }
+  /* Keep text on one line when it fits; switch to the broken version only when it wraps */
+  function fitBreaks() {
+    Array.prototype.forEach.call(document.querySelectorAll(".br"), function (el) {
+      if (!el.hasAttribute("data-plain")) el.setAttribute("data-plain", el.innerHTML);
+      el.innerHTML = el.getAttribute("data-plain");
+      if (el.getClientRects().length > 1) el.innerHTML = el.getAttribute("data-alt");
+    });
+  }
+  window.addEventListener("resize", fitBreaks);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBreaks);
 
   function scoreCode(answers) {
     var pairs = [["E", "I"], ["P", "F"], ["D", "X"]];
@@ -559,6 +570,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px
   }
 
   function bindView() {
+    fitBreaks();
     var start = document.getElementById("btn-start");
     if (start) start.onclick = function () { state = { screen: "q", i: 0, answers: [], code: null }; renderView(); scrollTo(0, 0); };
     Array.prototype.forEach.call(document.querySelectorAll(".opt"), function (b) {
