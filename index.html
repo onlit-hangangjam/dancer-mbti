@@ -101,7 +101,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px
 .code span:nth-child(2) { transform: rotate(2deg); }
 .code span:nth-child(3) { transform: rotate(-1deg); }
 .ticket-top h2 { font-size: clamp(40px, 12vw, 56px); line-height: 1; color: var(--on-tape); }
-.nick { font-weight: 700; font-size: 18px; }
+.nick { font-family: var(--font-display); font-weight: 400; font-size: clamp(20px, 6vw, 26px); line-height: 1.3; background: var(--on-tape); color: var(--tape); padding: 8px 18px; border-radius: 10px; transform: rotate(-2deg); max-width: 92%; word-break: keep-all; box-shadow: 3px 3px 0 #ffffff; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
 .chip { font-size: 13px; padding: 3px 10px; border-radius: 999px; background: #ffffff; color: var(--on-tape); border: 1px solid var(--on-tape); }
 .chip.ei { background: var(--on-tape); color: #ffffff; }
@@ -445,6 +445,19 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px
 
   function D() { return editing && draft ? draft : DATA; }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  /* Line breaks: new line after each sentence (. ! ?); a long sentence with commas splits once at the comma nearest its middle */
+  var LONG = 20;
+  function splitComma(t) {
+    if (t.length <= LONG) return [t];
+    var best = -1, mid = t.length / 2, re = /, /g, m;
+    while ((m = re.exec(t))) { if (best < 0 || Math.abs(m.index - mid) < Math.abs(best - mid)) best = m.index; }
+    return best < 0 ? [t] : [t.slice(0, best + 1), t.slice(best + 2)];
+  }
+  function br(s) {
+    var parts = String(s == null ? "" : s).split(/(?<=[.!?])\s+/), out = [];
+    parts.forEach(function (p) { out = out.concat(splitComma(p)); });
+    return out.map(esc).join("<br>");
+  }
 
   function scoreCode(answers) {
     var pairs = [["E", "I"], ["P", "F"], ["D", "X"]];
@@ -472,25 +485,25 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px
   function renderQuestion() {
     var d = D(), q = d.questions[state.i], n = d.questions.length, picked = state.answers[state.i];
     return '<div class="progress"><div class="bar"><i style="width:' + ((state.i + 1) / n * 100) + '%"></i></div><span class="count">' + (state.i + 1) + " / " + n + "</span></div>" +
-      '<section class="qcard">' + scene(state.i) + '<div class="eyebrow">' + esc(q.scene) + "</div><h2>" + esc(q.q) + '</h2><div class="options">' +
-      '<button type="button" class="opt' + (picked === q.aL ? " on" : "") + '" data-l="' + esc(q.aL) + '"><b>A</b><span>' + esc(q.a) + "</span></button>" +
-      '<button type="button" class="opt' + (picked === q.bL ? " on" : "") + '" data-l="' + esc(q.bL) + '"><b>B</b><span>' + esc(q.b) + "</span></button>" +
+      '<section class="qcard">' + scene(state.i) + '<div class="eyebrow" style="text-transform:none">Question.' + (state.i + 1) + "</div><h2>" + esc(q.q) + '</h2><div class="options">' +
+      '<button type="button" class="opt' + (picked === q.aL ? " on" : "") + '" data-l="' + esc(q.aL) + '"><b>A</b><span>' + br(q.a) + "</span></button>" +
+      '<button type="button" class="opt' + (picked === q.bL ? " on" : "") + '" data-l="' + esc(q.bL) + '"><b>B</b><span>' + br(q.b) + "</span></button>" +
       "</div></section>" + (state.i > 0 ? '<button type="button" class="back" id="btn-back">← 이전 질문</button>' : "");
   }
 
-  function fact(label, value) { return value ? "<dt>" + esc(label) + "</dt><dd>" + esc(value) + "</dd>" : ""; }
+  function fact(label, value) { return value ? "<dt>" + esc(label) + "</dt><dd>" + br(value) + "</dd>" : ""; }
 
   function renderResult() {
     var d = D(), entry = d.codes[state.code] || { genre: Object.keys(d.genres)[0], tag: "" };
     var g = d.genres[entry.genre], m = d.genres[g.match], r = d.genres[g.rival], R = d.result;
         var mission = fact(R.missionOutfit, g.spotOutfit) + fact(R.missionMove, g.spotMove);
     return '<article class="ticket"><div class="ticket-top">' + sign(entry.genre) +
-      "<h2>" + esc(g.name) + '</h2><div class="nick">' + esc(g.nick) + '</div><div class="chips"><span class="chip ei">' + esc(g.ei) + "</span>" + (entry.tag ? '<span class="chip">' + esc(entry.tag) + "</span>" : "") + "</div></div>" +
-      '<div class="punch"></div><div class="ticket-body"><p class="line">' + esc(g.line) + '</p><p class="reason">' + esc(g.reason) + "</p>" +
+      "<h2>" + esc(g.name) + '</h2><div class="nick">' + esc(g.nick) + "</div></div>" +
+      '<div class="punch"></div><div class="ticket-body"><p class="line">' + br(g.line) + '</p><p class="reason">' + br(g.reason) + "</p>" +
       '<dl class="facts">' + fact("성격", g.traits) + fact("음악", g.music) + "</dl></div></article>" +
       '<section class="section"><div class="pair">' +
-      (m ? '<div class="pcard good"><div class="eyebrow">' + esc(R.matchLabel) + '</div><div class="who">' + sign(g.match) + "<strong>" + esc(m.name) + "</strong></div><p>" + esc(g.matchWhy) + "</p></div>" : "") +
-      (r ? '<div class="pcard bad"><div class="eyebrow">' + esc(R.rivalLabel) + '</div><div class="who">' + sign(g.rival) + "<strong>" + esc(r.name) + "</strong></div><p>" + esc(g.rivalWhy) + "</p></div>" : "") +
+      (m ? '<div class="pcard good"><div class="eyebrow">' + esc(R.matchLabel) + '</div><div class="who">' + sign(g.match) + "<strong>" + esc(m.name) + "</strong></div><p>" + br(g.matchWhy) + "</p></div>" : "") +
+      (r ? '<div class="pcard bad"><div class="eyebrow">' + esc(R.rivalLabel) + '</div><div class="who">' + sign(g.rival) + "<strong>" + esc(r.name) + "</strong></div><p>" + br(g.rivalWhy) + "</p></div>" : "") +
       "</div></section>" +
       (mission ? '<section class="mission"><div class="eyebrow">' + esc(R.missionEyebrow) + "</div><h3>" + esc(R.missionTitle.replace("{genre}", g.name)) + "</h3><dl>" + mission + "</dl></section>" : "") +
       '<div class="row"><button type="button" class="ghost" id="btn-retry">' + esc(R.retry) + "</button></div>" +
